@@ -86,6 +86,8 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 		String url                      = "";
 		String tmpUrl                   = config.get(propertyPrefix + ".policy.rest.url");
 		String sslConfigFileName 		= config.get(propertyPrefix + ".policy.rest.ssl.config.file");
+		String mUsername            = config.get(propertyPrefix + ".policy.rest.url.username", "");
+		String mPassword            = config.get(propertyPrefix + ".policy.rest.url.password", "");
 		clusterName       				= config.get(propertyPrefix + ".access.cluster.name", "");
 		if(StringUtil.isEmpty(clusterName)){
 			clusterName =config.get(propertyPrefix + ".ambari.cluster.name", "");
@@ -113,7 +115,7 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 			supportsTagDeltas = "false";
 		}
 
-		init(url, sslConfigFileName, restClientConnTimeOutMs , restClientReadTimeOutMs, config);
+		init(url, sslConfigFileName, restClientConnTimeOutMs , restClientReadTimeOutMs, config, mUsername, mPassword);
 
         try {
             this.serviceNameUrlParam = URLEncoderUtil.encodeURIParam(serviceName);
@@ -769,7 +771,19 @@ public class RangerAdminRESTClient extends AbstractRangerAdminClient {
 			LOG.debug("<== RangerAdminRESTClient.revokeAccess(" + request + ")");
 		}
 	}
+	private void init(String url, String sslConfigFileName, int restClientConnTimeOutMs , int restClientReadTimeOutMs, Configuration config, String mUsername, String mPassword) {		if(LOG.isDebugEnabled()) {
+			LOG.debug("==> RangerAdminRESTClient.init(" + url + ", " + sslConfigFileName + ")");
+		}
 
+		restClient = new RangerRESTClient(url, sslConfigFileName, config);
+		restClient.setRestClientConnTimeOutMs(restClientConnTimeOutMs);
+		restClient.setRestClientReadTimeOutMs(restClientReadTimeOutMs);
+		restClient.setBasicAuthInfo(mUsername, mPassword);
+
+		if(LOG.isDebugEnabled()) {
+			LOG.debug("<== RangerAdminRESTClient.init(" + url + ", " + sslConfigFileName + ")");
+		}
+	}
 	private void init(String url, String sslConfigFileName, int restClientConnTimeOutMs , int restClientReadTimeOutMs, Configuration config) {
 		if(LOG.isDebugEnabled()) {
 			LOG.debug("==> RangerAdminRESTClient.init(" + url + ", " + sslConfigFileName + ")");
